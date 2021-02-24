@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState } from "react";
 import { useTracker } from "meteor/react-meteor-data";
 import { LoginForm } from "./LoginForm";
 import { RegisterForm } from "./RegisterForm";
@@ -9,28 +9,8 @@ import RandomNum from "./RandomNum";
 
 export const App = () => {
   const user = useTracker(() => Meteor.user());
-  console.log("App -> user", user);
   const [showLogin, setShowLogin] = useState(true);
   const logout = () => Meteor.logout();
-  const cronData = useTracker(() => {
-    const handler = Meteor.subscribe("crunch");
-
-    if (!handler.ready()) {
-      return null;
-    }
-    return "message";
-    console.log(handler);
-    // const tasks = TasksCollection.find(
-    //   hideCompleted ? pendingOnlyFilter : userFilter,
-    //   {
-    //     sort: { createdAt: -1 },
-    //   }
-    // ).fetch();
-    // const pendingTasksCount = TasksCollection.find(pendingOnlyFilter).count();
-
-    // return { tasks, pendingTasksCount };
-  });
-  // console.log(cronData);
   return (
     <div className="main">
       <div className="reddit-row">

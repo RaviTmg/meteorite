@@ -2,21 +2,18 @@ import { Meteor } from "meteor/meteor";
 import { CommentCollection } from "../imports/api/CommentCollection";
 import { QuestionCollection } from "../imports/api/QuestionCollection";
 import { Accounts } from "meteor/accounts-base";
-import { createHierarchyFromArray } from "../imports/utils/createHierarchyFromArray";
 import { Match, check } from "meteor/check";
+import { loremIpsum } from "lorem-ipsum";
 
-// import SyncedCron from "meteor/little"
 const insertQuestion = (question) => QuestionCollection.insert(question);
 const dummyquestions = [
   {
-    userId: "bcv67Ck82xdMrPumr",
     title: "Hello World",
-    content: "good mork=ning world",
+    content: "Good morning everyone. Hope all is well",
     upvotes: 10,
     downvotes: 1,
   },
   {
-    userId: "bcv67Ck82xdMrPumr",
     title: "Loreum ipsum",
     content:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
@@ -24,57 +21,35 @@ const dummyquestions = [
     downvotes: 1,
   },
   {
-    userId: "bcv67Ck82xdMrPumr",
     title: "pellentesque id nibh",
     content:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     upvotes: 10,
     downvotes: 1,
   },
-  {
-    userId: "bcv67Ck82xdMrPumr",
-    title: "nibh venenatis cras",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    upvotes: 10,
-    downvotes: 1,
-  },
 ];
-const dummyComments = [
-  {
-    content: "faucibus et molestie",
-    upvotes: 1,
-    downvotes: 1,
-    userId: "tLfssH5d9WmsptMne",
-    questionId: "nnRufS6mMK5hw3qb6",
-    parentId: "viEaNrXbKxCLnLYS6",
-    level: 3,
-  },
-];
-// const crushSomeNumbers = () =>
-//   Meteor.publish("crunch", function () {
-//     this.ready();
-//     return "lala lala";
-//   });
 Meteor.startup(() => {
-  if (!QuestionCollection.find().count()) {
-    dummyquestions.forEach((question) => [insertQuestion(question)]);
+  const defUserName = "Rawv";
+  if (!Accounts.findUserByUsername(defUserName)) {
+    const userId = Accounts.createUser({ username: defUserName, password: "password" });
+
+    if (!QuestionCollection.find().count()) {
+      dummyquestions.forEach((question) => [insertQuestion({ ...question, userId })]);
+    }
   }
   SyncedCron.add({
-    name: "Crunch some important numbers for the marketing department",
+    name: "Simple Cron job",
     schedule: function (parser) {
-      // parser is a later.parse object
-      return parser.text("every 1 min");
+      return parser.text("every 2 hours");
     },
     job: function () {
-      var numbersCrunched = crushSomeNumbers();
-      return numbersCrunched;
+      const content = loremIpsum();
+      const title = loremIpsum({ count: 2, units: "words" });
+      QuestionCollection.insert({ content, title });
+      return { content, title };
     },
   });
-  // SyncedCron.start();
-  // dummyComments.forEach((comment) => {
-  //   CommentCollection.insert(comment);
-  // });
+  SyncedCron.start();
 });
 Meteor.publish("questions", function publishTasks() {
   return QuestionCollection.find({});
