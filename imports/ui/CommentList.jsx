@@ -14,8 +14,10 @@ const SingleComment = ({ comment, handleComment }) => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
+            if (commentInp === "") return;
             handleComment(comment, commentInp);
             setIsCommenting(false);
+            setCommentInp("");
           }}
         >
           <textarea value={commentInp} onChange={(e) => setCommentInp(e.target.value)} />

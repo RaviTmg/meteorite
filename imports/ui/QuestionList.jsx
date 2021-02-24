@@ -9,7 +9,9 @@ const CommentForm = ({ handleSubmit }) => {
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        if (comment === "") return;
         handleSubmit(comment);
+        setComment("");
       }}
     >
       <textarea value={comment} onChange={(e) => setComment(e.target.value)}></textarea>
@@ -28,8 +30,13 @@ const Question = ({ question, handleSubmitComment }) => {
           {question.upvotes} Upvotes, {question.downvotes} Downvotes
         </p>
 
-        <CommentForm handleSubmit={(comment) => handleSubmitComment(question, comment)} />
-        <button onClick={() => setShowComment(true)}>view comments</button>
+        <CommentForm
+          handleSubmit={(comment) => {
+            handleSubmitComment(question, comment);
+            setShowComment(true);
+          }}
+        />
+        {!showComment && <button onClick={() => setShowComment(true)}>view comments</button>}
       </div>
       {showComment && <CommentList questionId={question._id} />}
     </div>
