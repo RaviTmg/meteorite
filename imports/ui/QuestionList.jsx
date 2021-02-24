@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Meteor } from "meteor/meteor";
 import { useTracker } from "meteor/react-meteor-data";
 import { QuestionCollection } from "../api/QuestionCollection";
-import { CommentCollection } from "../api/CommentCollection";
 import CommentList from "./CommentList";
 const CommentForm = ({ handleSubmit }) => {
   const [comment, setComment] = useState("");
@@ -37,35 +36,23 @@ const Question = ({ question, handleSubmitComment }) => {
   );
 };
 const QuestionList = () => {
-  const user = useTracker(() => Meteor.user());
-  const questions = useTracker(() => QuestionCollection.find({}).fetch());
-  // const comments = useTracker(() => CommentCollection.find({}).fetch());
+  const questions = useTracker(() => {
+    const handler = Meteor.subscribe("questions");
+    if (!handler.ready()) return [];
+    return QuestionCollection.find({}).fetch();
+  });
 
-  console.log("QuestionList -> questions", questions);
-  // useEffect(() => {
-  //   Meteor.call("getComments", "nnRufS6mMK5hw3qb6", function (error, message) {
-  //     console.log(message);
-  //     // identify the error
-  //     if (error && error.error === "logged-out") {
-  //       // show a nice error message
-  //       Session.set("errorMessage", "Please log in to post a comment.");
-  //     }
-  //   });
-  // }, []);
   const handleSubmitComment = (question, content) => {
-    CommentCollection.insert({
+    Meteor.call("comments.insert", {
       content,
       questionId: question._id,
-      userId: user._id,
-      upvotes: 0,
-      downvotes: 0,
       level: 1,
     });
   };
   return (
     <div className="question-list">
       {questions.map((question, i) => (
-        <Question question={question} handleSubmitComment={handleSubmitComment} ke={i} />
+        <Question question={question} handleSubmitComment={handleSubmitComment} key={i} />
       ))}
     </div>
   );

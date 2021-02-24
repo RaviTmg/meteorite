@@ -3,6 +3,8 @@ import { CommentCollection } from "../imports/api/CommentCollection";
 import { QuestionCollection } from "../imports/api/QuestionCollection";
 import { Accounts } from "meteor/accounts-base";
 import { createHierarchyFromArray } from "../imports/utils/createHierarchyFromArray";
+import { Match, check } from "meteor/check";
+
 // import SyncedCron from "meteor/little"
 const insertQuestion = (question) => QuestionCollection.insert(question);
 const dummyquestions = [
@@ -74,9 +76,42 @@ Meteor.startup(() => {
   //   CommentCollection.insert(comment);
   // });
 });
+Meteor.publish("questions", function publishTasks() {
+  return QuestionCollection.find({});
+});
+Meteor.publish("comments", function (questionId) {
+  return CommentCollection.find({ questionId });
+});
 Meteor.methods({
-  getComments(questionId) {
-    return CommentCollection.find({}).fetch();
+  "questions.insert"({ title, content }) {
+    check(title, String);
+    check(content, String);
+
+    if (!this.userId) {
+      throw new Meteor.Error("Not authorized.");
+    }
+
+    QuestionCollection.insert({
+      title,
+      content: new Date(),
+      userId: this.userId,
+    });
+  },
+  "comments.insert"({ content, questionId, level, parentId }) {
+    check(content, String);
+    check(questionId, String);
+    check(level, Match.Integer);
+
+    if (!this.userId) {
+      throw new Meteor.Error("Not authorized.");
+    }
+    CommentCollection.insert({
+      content,
+      questionId,
+      level,
+      userId: this.userId,
+      parentId,
+    });
   },
   finduserbyusername(name) {
     return Accounts.findUserByUsername(name);

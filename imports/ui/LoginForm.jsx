@@ -9,7 +9,6 @@ export const LoginForm = ({ onReqRegister }) => {
     e.preventDefault();
 
     Meteor.loginWithPassword(username, password, (err) => {
-      console.log("err", err.message);
       if (err) {
         alert(err.reason);
       }

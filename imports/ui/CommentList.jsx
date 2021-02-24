@@ -25,16 +25,16 @@ const SingleComment = ({ comment, handleComment }) => {
   );
 };
 const CommentList = ({ questionId }) => {
-  const comments = useTracker(() => CommentCollection.find({ questionId }).fetch());
-  const user = useTracker(() => Meteor.user());
+  const comments = useTracker(() => {
+    const handler = Meteor.subscribe("comments", questionId);
+    if (!handler.ready()) return [];
+    return CommentCollection.find({ questionId }).fetch();
+  });
   const nestedComments = createHierarchyFromArray(comments);
   const handleComment = (comment, content) => {
-    CommentCollection.insert({
+    Meteor.call("comments.insert", {
       content,
       questionId,
-      userId: user._id,
-      upvotes: 0,
-      downvotes: 0,
       level: comment.level + 1,
       parentId: comment._id,
     });
