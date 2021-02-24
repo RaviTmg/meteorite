@@ -8,12 +8,17 @@ export const LoginForm = ({ onReqRegister }) => {
   const submit = (e) => {
     e.preventDefault();
 
-    Meteor.loginWithPassword(username, password);
+    Meteor.loginWithPassword(username, password, (err) => {
+      console.log("err", err.message);
+      if (err) {
+        alert(err.reason);
+      }
+    });
   };
 
   return (
-    <div>
-      <form onSubmit={submit} className="login-form">
+    <div className="login-area">
+      <form onSubmit={submit}>
         <label htmlFor="username">Username</label>
         <input
           type="text"

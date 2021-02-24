@@ -2,7 +2,8 @@ import { Meteor } from "meteor/meteor";
 import { CommentCollection } from "../imports/api/CommentCollection";
 import { QuestionCollection } from "../imports/api/QuestionCollection";
 import { Accounts } from "meteor/accounts-base";
-
+import { createHierarchyFromArray } from "../imports/utils/createHierarchyFromArray";
+// import SyncedCron from "meteor/little"
 const insertQuestion = (question) => QuestionCollection.insert(question);
 const dummyquestions = [
   {
@@ -48,10 +49,27 @@ const dummyComments = [
     level: 3,
   },
 ];
+// const crushSomeNumbers = () =>
+//   Meteor.publish("crunch", function () {
+//     this.ready();
+//     return "lala lala";
+//   });
 Meteor.startup(() => {
   if (!QuestionCollection.find().count()) {
     dummyquestions.forEach((question) => [insertQuestion(question)]);
   }
+  SyncedCron.add({
+    name: "Crunch some important numbers for the marketing department",
+    schedule: function (parser) {
+      // parser is a later.parse object
+      return parser.text("every 1 min");
+    },
+    job: function () {
+      var numbersCrunched = crushSomeNumbers();
+      return numbersCrunched;
+    },
+  });
+  // SyncedCron.start();
   // dummyComments.forEach((comment) => {
   //   CommentCollection.insert(comment);
   // });
@@ -59,5 +77,8 @@ Meteor.startup(() => {
 Meteor.methods({
   getComments(questionId) {
     return CommentCollection.find({}).fetch();
+  },
+  finduserbyusername(name) {
+    return Accounts.findUserByUsername(name);
   },
 });

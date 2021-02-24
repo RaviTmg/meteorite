@@ -8,18 +8,25 @@ export const RegisterForm = ({ onReqLogin }) => {
 
   const submit = (e) => {
     e.preventDefault();
-
-    if (!Accounts.findUserByUsername(username)) {
-      Accounts.createUser({
-        username,
-        password,
-      });
-    }
+    Meteor.call("finduserbyusername", username, (error, exists) => {
+      if (error) {
+        alert("Could not create the user");
+        return;
+      }
+      if (!exists)
+        Accounts.createUser({
+          username,
+          password,
+        });
+      else {
+        alert("an account with that username already exists");
+      }
+    });
   };
 
   return (
-    <div>
-      <form onSubmit={submit} className="login-form">
+    <div className="login-area">
+      <form onSubmit={submit}>
         <label htmlFor="username">Username</label>
 
         <input
@@ -42,7 +49,7 @@ export const RegisterForm = ({ onReqLogin }) => {
 
         <button type="submit">Register</button>
       </form>
-      or
+      <span>or</span>
       <button onClick={onReqLogin}>login</button>
     </div>
   );

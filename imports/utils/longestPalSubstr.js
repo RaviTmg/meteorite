@@ -29,6 +29,6 @@ const longestPalSubstr = (str) => {
       ++high;
     }
   }
-  return str.substring(start, start + maxLength - 1);
+  return str.substring(start, start + maxLength);
 };
 export default longestPalSubstr;

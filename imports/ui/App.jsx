@@ -12,19 +12,43 @@ export const App = () => {
   console.log("App -> user", user);
   const [showLogin, setShowLogin] = useState(true);
   const logout = () => Meteor.logout();
+  const cronData = useTracker(() => {
+    const handler = Meteor.subscribe("crunch");
+
+    if (!handler.ready()) {
+      return null;
+    }
+    return "message";
+    console.log(handler);
+    // const tasks = TasksCollection.find(
+    //   hideCompleted ? pendingOnlyFilter : userFilter,
+    //   {
+    //     sort: { createdAt: -1 },
+    //   }
+    // ).fetch();
+    // const pendingTasksCount = TasksCollection.find(pendingOnlyFilter).count();
+
+    // return { tasks, pendingTasksCount };
+  });
+  // console.log(cronData);
   return (
     <div className="main">
-      {user ? (
-        <Fragment>
-          <div onClick={logout}>Hello {user.username}</div>
-          <QuestionList />
-        </Fragment>
-      ) : showLogin ? (
-        <LoginForm onReqRegister={() => setShowLogin(false)} />
-      ) : (
-        <RegisterForm onReqLogin={() => setShowLogin(true)} />
-      )}
-      <div>
+      <div className="reddit-row">
+        {user ? (
+          <>
+            <header className="user-header">
+              <span>Hello {user.username}</span>
+              <button onClick={logout}>log out</button>
+            </header>
+            <QuestionList />
+          </>
+        ) : showLogin ? (
+          <LoginForm onReqRegister={() => setShowLogin(false)} />
+        ) : (
+          <RegisterForm onReqLogin={() => setShowLogin(true)} />
+        )}
+      </div>
+      <div className="util-row">
         <PalindromeCalc />
         <RandomNum />
       </div>
